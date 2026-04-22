@@ -131,20 +131,20 @@ SCHEMA = {
 CAMPAIGN_NAME_ONLY_PLATFORMS = {"dv360", "google"}
 
 PLATFORM_TEMPLATES = {
-    # ── Original platforms (utm_medium includes _paid_{objective}) ──
-    "meta":      "utm_source=dw_meta&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}_{{adset.id}}_{{ad.id}}_{{placement}}",
-    "linkedin":  "utm_source=dw_linkedin&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{CAMPAIGN_GROUP_ID}}_{{CAMPAIGN_ID}}_{{CREATIVE_ID}}",
-    "dv360":     "utm_source=dw_dv360&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}&utm_content=${CAMPAIGN_ID}_${INSERTION_ORDER_ID}_${LINE_ITEM_ID}_${CREATIVE_ID}",
-    "adsp":      "utm_source=dw_adsp&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}&utm_content={%campaign_cfid}_{%ad_cfid}_{%creative_cfid}",
+    # ── Original platforms (utm_medium includes paid{objective}) ──
+    "meta":      "utm_source=dw_meta&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adset.id}}{{ad.id}}_{{placement}}",
+    "linkedin":  "utm_source=dw_linkedin&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{CAMPAIGN_GROUP_ID}}{{CAMPAIGN_ID}}{{CREATIVE_ID}}",
+    "dv360":     "utm_source=dw_dv360&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}&utm_content=${CAMPAIGN_ID}${INSERTION_ORDER_ID}${LINE_ITEM_ID}${CREATIVE_ID}",
+    "adsp":      "utm_source=dw_adsp&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}&utm_content={%campaign_cfid}{%ad_cfid}_{%creative_cfid}",
     # ── Google (single-bracket macros, utm_medium fixed to cpc) ──
-    "google":    "utm_source=google&utm_medium=cpc&utm_campaign={theme}_{aud}&utm_content={campaignid}_{adgroupid}_{creative}",
+    "google":    "utm_source=google&utm_medium=cpc&utm_campaign={theme}{aud}&utm_content={campaignid}{adgroupid}_{creative}",
     # ── Social platforms ──
-    "tiktok":    "utm_source=dw_tiktok&utm_medium={type}&utm_campaign={theme}_{aud}_{creative}&utm_content=__CAMPAIGN_ID_____AID_____CID__",
-    "reddit":    "utm_source=dw_reddit&utm_medium={type}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}_{{adgroup.id}}_{{ad.id}}",
-    "quora":     "utm_source=dw_quora&utm_medium={type}&utm_campaign={theme}_{aud}&utm_content={{campaign.id}}_{{adset.id}}_{{ad.id}}",
-    "x":         "utm_source=dw_x&utm_medium={type}&utm_campaign={theme}_{aud}_{creative}&utm_content={{tw_campaignid}}_{{tw_adgroupid}}_{{tw_adid}}",
-    "snapchat":  "utm_source=dw_snapchat&utm_medium={type}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}_{{adset.id}}_{{ad.id}}",
-    "tradedesk": "utm_source=dw_tradedesk&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}&utm_content=%%TTD_CAMPAIGNID%%_%%TTD_ADGROUPID%%_%%TTD_CREATIVEID%%_%%TTD_PUBLISHER_NAME%%_%%TTD_SITE%%",
+    "tiktok":    "utm_source=dw_tiktok&utm_medium={type}&utm_campaign={theme}{aud}{creative}&utm_content=CAMPAIGN_ID_AID_CID",
+    "reddit":    "utm_source=dw_reddit&utm_medium={type}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adgroup.id}}{{ad.id}}",
+    "quora":     "utm_source=dw_quora&utm_medium={type}&utm_campaign={theme}{aud}&utm_content={{campaign.id}}{{adset.id}}_{{ad.id}}",
+    "x":         "utm_source=dw_x&utm_medium={type}&utm_campaign={theme}{aud}{creative}&utm_content={{tw_campaignid}}{{tw_adgroupid}}{{tw_adid}}",
+    "snapchat":  "utm_source=dw_snapchat&utm_medium={type}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adset.id}}{{ad.id}}",
+    "tradedesk": "utm_source=dw_tradedesk&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}&utm_content=%%TTD_CAMPAIGNID%%%%TTD_ADGROUPID%%%%TTD_CREATIVEID%%%%TTD_PUBLISHER_NAME%%_%%TTD_SITE%%",
 }
 
 GOOGLE_CAMPAIGN_TYPES = ["Search", "Display", "Performance Max", "Video"]
@@ -281,12 +281,12 @@ def generate_utm_urls(schema: dict, values: dict) -> list[dict]:
 
 def copy_to_clipboard_js(text: str):
     """Inject JS that breaks out of the iframe to copy via parent document."""
-    escaped = text.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
+    escaped = text.replace("\\", "\\\\").replace("", "\\").replace("$", "\\$")
     components.html(
         f"""
         <script>
         const textArea = window.parent.document.createElement("textarea");
-        textArea.value = `{escaped}`;
+        textArea.value = {escaped};
         textArea.style.position = "absolute";
         textArea.style.left = "-999999px";
         window.parent.document.body.appendChild(textArea);
@@ -489,7 +489,7 @@ for field in schema["fields"]:
     if fid == "theme" and is_campaign_name_only:
         label = "Campaign Name"
 
-    display_label = f"{label} {'🔴' if required else ''}"
+    display_label = f"{label} :red[*]" if required else label
 
     if field["type"] == "dropdown":
         options = field.get("options", [])
