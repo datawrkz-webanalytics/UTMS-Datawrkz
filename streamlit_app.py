@@ -9,6 +9,7 @@ Deps: pip install streamlit gspread google-auth pandas
 """
 
 import datetime
+import os
 import urllib.parse
 import streamlit as st
 import streamlit.components.v1 as components
@@ -38,32 +39,39 @@ SCOPES = [
 
 @st.cache_resource
 def get_utms_client():
-    """UTMS bot — safe check for secrets."""
-    # This check prevents the 'StreamlitSecretNotFoundError'
+    """UTMS bot — Cloud secrets first, local JSON fallback."""
     try:
-        # We use ._secrets because accessing .secrets directly triggers the crash
-        if hasattr(st, "secrets") and "utms_gcp" in st.secrets:
-            creds_dict = dict(st.secrets["utms_gcp"])
-            return gspread.authorize(Credentials.from_service_account_info(creds_dict, scopes=SCOPES))
-    except Exception:
-        # If any error occurs reading secrets, we move to the fallback
+        creds_dict = dict(st.secrets["utms_gcp"])
+        creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+        return gspread.authorize(creds)
+    except (KeyError, FileNotFoundError):
         pass
-    
-    # Fallback to local JSON
-    return gspread.authorize(Credentials.from_service_account_file("google-credentials.json", scopes=SCOPES))
+
+    # Local fallback
+    if os.path.exists("google-credentials.json"):
+        creds = Credentials.from_service_account_file("google-credentials.json", scopes=SCOPES)
+        return gspread.authorize(creds)
+
+    st.error("❌ UTMS credentials not found. Add [utms_gcp] in Streamlit Secrets or provide google-credentials.json locally.")
+    st.stop()
 
 @st.cache_resource
 def get_docad_client():
-    """DOCAD bot — handles Cloud Secrets with a local JSON fallback."""
-    if "docad_gcp" in st.secrets:
-        creds_dict = dict(st.secrets["docad_gcp"])
-        return gspread.authorize(Credentials.from_service_account_info(creds_dict, scopes=SCOPES))
-    
+    """DOCAD bot — Cloud secrets first, local JSON fallback."""
     try:
-        return gspread.authorize(Credentials.from_service_account_file("docad-credentials.json", scopes=SCOPES))
-    except FileNotFoundError:
-        # We don't st.stop() here in case you only need the UTMS tool
-        return None
+        creds_dict = dict(st.secrets["docad_gcp"])
+        creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+        return gspread.authorize(creds)
+    except (KeyError, FileNotFoundError):
+        pass
+
+    # Local fallback
+    if os.path.exists("docad-credentials.json"):
+        creds = Credentials.from_service_account_file("docad-credentials.json", scopes=SCOPES)
+        return gspread.authorize(creds)
+
+    # Not critical — app can still work for UTMS only
+    return None
 
 # Initialize
 utms_gc = get_utms_client()
