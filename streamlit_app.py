@@ -1,5 +1,5 @@
 """
-Datawrkz Internal Tools — Single-File Application
+UTMS — Single-File Application
 ===================================================
 Consolidated Streamlit app housing UTMS Generator and DOCAD Engine.
 Dual-bot authentication: UTMS via google-credentials.json, DOCAD via docad-credentials.json.
@@ -23,7 +23,7 @@ from google.oauth2.service_account import Credentials
 # ═══════════════════════════════════════════════════════════
 
 st.set_page_config(
-    page_title="Datawrkz Internal Tools",
+    page_title="UTMS",
     page_icon="🏠",
     layout="wide",
 )
@@ -446,8 +446,8 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 st.markdown(
     """
     <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-        <span style="font-size:1.75rem;font-weight:900;color:#0f172a;letter-spacing:-0.025em;">
-            Datawrkz Internal Tools
+        <span style="font-size:1.75rem;font-weight:900;color:var(--text-color);letter-spacing:-0.025em;">
+            UTMS
         </span>
         <span style="font-size:0.6875rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;">
             powered by datawrkz
