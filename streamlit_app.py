@@ -243,11 +243,7 @@ def generate_utm_urls(schema: dict, values: dict) -> list[dict]:
     is_google = platform == "google"
     is_dv360 = platform == "dv360"
 
-    if is_google or is_dv360:
-        creatives = ["Google_Ad"] if is_google else ["DV360_Ad"]
-    else:
-        creatives = [c.strip() for c in raw_creatives.split(",") if c.strip()]
-
+    
     if not creatives:
         return []
 
