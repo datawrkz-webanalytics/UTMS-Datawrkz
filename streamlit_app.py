@@ -37,11 +37,17 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive",
 ]
 
+def _fix_private_key(creds_dict: dict) -> dict:
+    """Fix private_key from TOML — replace literal \\n with real newlines."""
+    if "private_key" in creds_dict:
+        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+    return creds_dict
+
 @st.cache_resource
 def get_utms_client():
     """UTMS bot — Cloud secrets first, local JSON fallback."""
     try:
-        creds_dict = dict(st.secrets["utms_gcp"])
+        creds_dict = _fix_private_key(dict(st.secrets["utms_gcp"]))
         creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
         return gspread.authorize(creds)
     except (KeyError, FileNotFoundError):
@@ -59,7 +65,7 @@ def get_utms_client():
 def get_docad_client():
     """DOCAD bot — Cloud secrets first, local JSON fallback."""
     try:
-        creds_dict = dict(st.secrets["docad_gcp"])
+        creds_dict = _fix_private_key(dict(st.secrets["docad_gcp"]))
         creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
         return gspread.authorize(creds)
     except (KeyError, FileNotFoundError):
@@ -140,20 +146,20 @@ CAMPAIGN_NAME_ONLY_PLATFORMS = {"dv360", "google"}
 
 PLATFORM_TEMPLATES = {
     # ── Original platforms (utm_medium includes paid{objective}) ──
-    "meta":      "utm_source=dw_meta&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}_{{adset.id}}_{{ad.id}}_{{placement}}",
-    "linkedin":  "utm_source=dw_linkedin&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{CAMPAIGN_GROUP_ID}}{{CAMPAIGN_ID}}{{CREATIVE_ID}}",
+    "meta":      "utm_source=dw_meta&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adset.id}}{{ad.id}}_{{placement}}",
+    "linkedin":  "utm_source=dw_linkedin&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{CAMPAIGN_GROUP_ID}}{{CAMPAIGN_ID}}{{CREATIVE_ID}}",
     # ── Google & DV360 (same structure, only utm_content macros differ) ──
     "dv360":     "utm_source=google&utm_medium=cpc&utm_campaign={theme}{aud}&utm_content=${CAMPAIGN_ID}${INSERTION_ORDER_ID}${LINE_ITEM_ID}${CREATIVE_ID}",
-    "google":    "utm_source=google&utm_medium=cpc&utm_campaign={theme}{aud}&utm_content={campaignid}_{adgroupid}_{creative}",
+    "google":    "utm_source=google&utm_medium=cpc&utm_campaign={theme}{aud}&utm_content={campaignid}{adgroupid}{creative}",
     # ── Programmatic ──
-    "adsp":      "utm_source=dw_adsp&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={%campaign_cfid}_{%ad_cfid}_{%creative_cfid}",
-    "tradedesk": "utm_source=dw_tradedesk&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content=%%TTD_CAMPAIGNID%%%%TTD_ADGROUPID%%%%TTD_CREATIVEID%%%%TTD_PUBLISHER_NAME%%_%%TTD_SITE%%",
+    "adsp":      "utm_source=dw_adsp&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={%campaign_cfid}{%ad_cfid}{%creative_cfid}",
+    "tradedesk": "utm_source=dw_tradedesk&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content=%%TTD_CAMPAIGNID%%%%TTD_ADGROUPID%%%%TTD_CREATIVEID%%%%TTD_PUBLISHER_NAME%%_%%TTD_SITE%%",
     # ── Social platforms ──
-    "tiktok":    "utm_source=dw_tiktok&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content=_CAMPAIGN_ID_AID_CID_",
-    "reddit":    "utm_source=dw_reddit&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}_{{adgroup.id}}_{{ad.id}}",
-    "quora":     "utm_source=dw_quora&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}_{{adset.id}}_{{ad.id}}",
-    "x":         "utm_source=dw_x&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{tw_campaignid}}{{tw_adgroupid}}{{tw_adid}}",
-    "snapchat":  "utm_source=dw_snapchat&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}{{adset.id}}{{ad.id}}",
+    "tiktok":    "utm_source=dw_tiktok&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content=CAMPAIGN_ID_AID_CID",
+    "reddit":    "utm_source=dw_reddit&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adgroup.id}}{{ad.id}}",
+    "quora":     "utm_source=dw_quora&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adset.id}}{{ad.id}}",
+    "x":         "utm_source=dw_x&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{tw_campaignid}}{{tw_adgroupid}}{{tw_adid}}",
+    "snapchat":  "utm_source=dw_snapchat&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adset.id}}{{ad.id}}",
 }
 
 GOOGLE_CAMPAIGN_TYPES = ["Search", "Display", "Performance Max", "Video"]
