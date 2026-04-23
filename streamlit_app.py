@@ -164,21 +164,23 @@ CAMPAIGN_NAME_ONLY_PLATFORMS = {"dv360", "google"}
 
 PLATFORM_TEMPLATES = {
     # ── Meta & LinkedIn (Added underscores for readability) ──
-    "meta":      "utm_source=dw_meta&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adset.id}}{{ad.id}}_{{placement}}",
-    "linkedin":  "utm_source=dw_linkedin&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{CAMPAIGN_GROUP_ID}}{{CAMPAIGN_ID}}{{CREATIVE_ID}}",
-    # ── Google & DV360 (same structure, only utm_content macros differ) ──
-    "dv360":     "utm_source=google&utm_medium=cpc&utm_campaign={theme}{aud}&utm_content=${CAMPAIGN_ID}${INSERTION_ORDER_ID}${LINE_ITEM_ID}${CREATIVE_ID}",
-    "google":    "utm_source=google&utm_medium=cpc&utm_campaign={theme}{aud}&utm_content={campaignid}{adgroupid}{creative}",
+    "meta":      "utm_source=dw_meta&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}_{{adset.id}}_{{ad.id}}_{{placement}}",
+    "linkedin":  "utm_source=dw_linkedin&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{CAMPAIGN_GROUP_ID}}_{{CAMPAIGN_ID}}_{{CREATIVE_ID}}",
+    
+    # ── Google & DV360 (Google uses single brackets; DV360 uses $) ──
+    "dv360":     "utm_source=google&utm_medium=cpc&utm_campaign={theme}{aud}&utm_content=${CAMPAIGN_ID}_${INSERTION_ORDER_ID}_${LINE_ITEM_ID}_${CREATIVE_ID}",
+    "google":    "utm_source=google&utm_medium=cpc&utm_campaign={theme}{aud}&utm_content={campaignid}_{adgroupid}_{creative}",
+    
     # ── Programmatic (Ensuring IDs don't bleed together) ──
-    "adsp":      "utm_source=dw_adsp&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={%campaign_cfid}{%ad_cfid}{%creative_cfid}",
-    "tradedesk": "utm_source=dw_tradedesk&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}&utm_content=%%TTD_CAMPAIGNID%%%%TTD_ADGROUPID%%%%TTD_CREATIVEID%%%%TTD_PUBLISHER_NAME%%_%%TTD_SITE%%",
+    "adsp":      "utm_source=dw_adsp&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={%campaign_cfid}_{%ad_cfid}_{%creative_cfid}",
+    "tradedesk": "utm_source=dw_tradedesk&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}&utm_content=%%TTD_CAMPAIGNID%%_%%TTD_ADGROUPID%%_%%TTD_CREATIVEID%%_%%TTD_PUBLISHER_NAME%%_%%TTD_SITE%%",
     
     # ── Social (Fixed TikTok macros and added delimiters) ──
-    "tiktok":    "utm_source=dw_tiktok&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content=_CAMPAIGN_ID__AID__CID_",
-    "reddit":    "utm_source=dw_reddit&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adgroup.id}}{{ad.id}}",
-    "quora":     "utm_source=dw_quora&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adset.id}}{{ad.id}}",
-    "x":         "utm_source=dw_x&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{tw_campaignid}}{{tw_adgroupid}}{{tw_adid}}",
-    "snapchat":  "utm_source=dw_snapchat&utm_medium={type}paid{objective}&utm_campaign={theme}{aud}{creative}&utm_content={{campaign.id}}{{adset.id}}{{ad.id}}",
+    "tiktok":    "utm_source=dw_tiktok&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content=__CAMPAIGN_ID____AID____CID__",
+    "reddit":    "utm_source=dw_reddit&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}_{{adgroup.id}}_{{ad.id}}",
+    "quora":     "utm_source=dw_quora&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}_{{adset.id}}_{{ad.id}}",
+    "x":         "utm_source=dw_x&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{tw_campaignid}}_{{tw_adgroupid}}_{{tw_adid}}",
+    "snapchat":  "utm_source=dw_snapchat&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={{campaign.id}}_{{adset.id}}_{{ad.id}}",
 }
 
 GOOGLE_CAMPAIGN_TYPES = ["Search", "Display", "Performance Max", "Video"]
