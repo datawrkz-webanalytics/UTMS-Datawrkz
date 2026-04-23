@@ -244,7 +244,7 @@ def generate_utm_urls(schema: dict, values: dict) -> list[dict]:
     is_dv360 = platform == "dv360"
 
     if is_google or is_dv360:
-        creatives = ["Google_Ad"] if is_google else ["DV360_Ad"]
+        creatives = ["Ad"]   # display label only — template macros handle the actual ad IDs
     else:
         creatives = [c.strip() for c in raw_creatives.split(",") if c.strip()]
 
@@ -272,6 +272,9 @@ def generate_utm_urls(schema: dict, values: dict) -> list[dict]:
         for field in schema["fields"]:
             fid = field["id"]
             if fid in ("landing_page", "client"):
+                continue
+            # Skip {creative} replacement for Google/DV360 — those are platform macros
+            if fid == "creative" and (is_google or is_dv360):
                 continue
             placeholder = "{" + fid + "}"
             value = creative_name if fid == "creative" else (values.get(fid) or "")
