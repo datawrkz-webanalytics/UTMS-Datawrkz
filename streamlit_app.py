@@ -38,9 +38,22 @@ SCOPES = [
 ]
 
 def _fix_private_key(creds_dict: dict) -> dict:
-    """Fix private_key from TOML — replace literal \\n with real newlines."""
-    if "private_key" in creds_dict:
-        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+    """Normalize private_key from TOML secrets for PEM parsing."""
+    pk = creds_dict.get("private_key", "")
+    if pk:
+        # Handle various escaping scenarios from TOML
+        pk = pk.replace("\\n", "\n")   # literal backslash-n → real newline
+        pk = pk.replace("\\\\n", "\n") # double-escaped → real newline
+        pk = pk.strip()
+        # Ensure proper PEM structure
+        if "BEGIN" in pk and pk.count("\n") <= 2:
+            # Key is all on one line — split into 64-char chunks
+            header = "-----BEGIN PRIVATE KEY-----"
+            footer = "-----END PRIVATE KEY-----"
+            body = pk.replace(header, "").replace(footer, "").replace(" ", "")
+            chunks = [body[i:i+64] for i in range(0, len(body), 64)]
+            pk = header + "\n" + "\n".join(chunks) + "\n" + footer + "\n"
+        creds_dict["private_key"] = pk
     return creds_dict
 
 @st.cache_resource
@@ -52,6 +65,9 @@ def get_utms_client():
         return gspread.authorize(creds)
     except (KeyError, FileNotFoundError):
         pass
+    except ValueError as e:
+        st.error(f"❌ UTMS private_key is malformed: {e}\n\nMake sure you copied the FULL private_key from your JSON file, including the BEGIN/END lines.")
+        st.stop()
 
     # Local fallback
     if os.path.exists("google-credentials.json"):
@@ -70,6 +86,8 @@ def get_docad_client():
         return gspread.authorize(creds)
     except (KeyError, FileNotFoundError):
         pass
+    except ValueError:
+        return None  # DOCAD key issue — non-critical, UTMS can still work
 
     # Local fallback
     if os.path.exists("docad-credentials.json"):
