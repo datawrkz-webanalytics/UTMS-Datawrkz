@@ -317,12 +317,12 @@ def generate_utm_urls(schema: dict, values: dict) -> list[dict]:
 
 def copy_to_clipboard_js(text: str):
     """Inject JS that breaks out of the iframe to copy via parent document."""
-    escaped = text.replace("\\", "\\\\").replace("", "\\").replace("$", "\\$")
+    escaped = text.replace("\\", "\\\\").replace("$", "\\$").replace("`", "\\`")
     components.html(
         f"""
         <script>
         const textArea = window.parent.document.createElement("textarea");
-        textArea.value = {escaped};
+        textArea.value = `{escaped}`;
         textArea.style.position = "absolute";
         textArea.style.left = "-999999px";
         window.parent.document.body.appendChild(textArea);
@@ -518,6 +518,11 @@ for field in schema["fields"]:
         values[fid] = ""  # hidden — set empty so templates get a clean string
         continue
 
+    # ── Hide objective field for Google & DV360 (not used in their templates) ──
+    if fid == "objective" and is_campaign_name_only:
+        values[fid] = ""  # set empty so template placeholders resolve cleanly
+        continue
+
     # ── Hide creatives field for Google (and dv360) ──
     if fid == "creative" and current_platform in CAMPAIGN_NAME_ONLY_PLATFORMS:
         continue
@@ -540,7 +545,7 @@ for field in schema["fields"]:
         # ── Google conditional: Campaign Type selector ──
         if fid == "platform" and values.get("platform") == "google":
             values["google_campaign_type"] = st.selectbox(
-                "Google Campaign Type 🔴",
+                "Google Campaign Type :red[*]",
                 options=[""] + GOOGLE_CAMPAIGN_TYPES,
                 format_func=lambda x: "Select Campaign Type…" if x == "" else x,
                 key="utms_field_google_campaign_type",
