@@ -172,7 +172,7 @@ PLATFORM_TEMPLATES = {
     "google":    "utm_source=google&utm_medium=cpc&utm_campaign={theme}{aud}&utm_content={campaignid}_{adgroupid}_{creative}",
     
     # ── Programmatic (Ensuring IDs don't bleed together) ──
-    "adsp":      "utm_source=dw_adsp&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content={%campaign_cfid}_{%ad_cfid}_{%creative_cfid}",
+    "adsp":      "utm_source=dw_adsp&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}_{creative}&utm_content=[CAMPAIGN_ID][AD_GROUP_ID][CREATIVE_ID]&utm_term=[SITE_NAME]",
     "tradedesk": "utm_source=dw_tradedesk&utm_medium={type}_paid_{objective}&utm_campaign={theme}_{aud}&utm_content=%%TTD_CAMPAIGNID%%_%%TTD_ADGROUPID%%_%%TTD_CREATIVEID%%_%%TTD_PUBLISHER_NAME%%_%%TTD_SITE%%",
     
     # ── Social (Fixed TikTok macros and added delimiters) ──
