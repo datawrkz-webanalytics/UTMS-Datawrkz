@@ -617,6 +617,7 @@ else:
             st.session_state.logged_urls.add(r["url"])
 
         copy_to_clipboard_js(all_urls)
+        st.toast("✅ All URLs copied to clipboard!", icon="📋")
 
         if new_urls:
             st.success(f"Logged {len(new_urls)} URL(s) to Google Sheets.")
@@ -652,7 +653,9 @@ else:
             else:
                 log_to_sheets(client_name, platform, campaign, result["creative"], result["url"])
                 st.session_state.logged_urls.add(result["url"])
+                st.toast(f"✅ URL for {result['creative']} copied!", icon="📋")
             copy_to_clipboard_js(result["url"])
+
 
 # ── Sheets Link ──
 st.markdown("---")
