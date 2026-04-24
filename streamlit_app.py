@@ -530,8 +530,23 @@ for field in schema["fields"]:
     if fid == "creative" and current_platform in CAMPAIGN_NAME_ONLY_PLATFORMS:
         continue
 
+    # ── Tooltip content per field ──
+    FIELD_HELP = {
+        "landing_page": "Just paste the page you're sending traffic to.",
+        "client": "Type the client's name, but be consistent. If it's 'Bushfire Kitchen' today, it has to be 'Bushfire Kitchen' every single time. Don't shorten it, don't change it. Once you've used a name, you can check the linked Google Sheet on the site to see all previously generated URLs.",
+        "platform": "Pick from the dropdown. Vizibl isn't there yet, we'll add it soon since some things are hardcoded on the backend.",
+        "objective": "Simple. Purchase campaign? Select Conversion. Lead gen? Select Lead.",
+        "aud": "What audience are you targeting? Sports lovers? Put sports_lovers. Event planners? Put event_planners. You get the idea.",
+        "creative": "Describe what creative you're using. Single image with a B1G1 offer? Put b1g1_image. You can have multiple creatives separated by a comma and the tool will generate a separate URL for each one.",
+    }
+
     if fid == "theme" and is_campaign_name_only:
         label = "Campaign Name"
+        help_text = "Instead you'll see Campaign Name, and all you need to do is copy paste the campaign name exactly as it appears in your Google Ads account. Like this: BAU_100_313_GA_PE_Brand_SEA_NA_MIX_UAE_Leads_NA - 28 May 2025. Just paste it as is, no changes needed."
+    elif fid == "theme":
+        help_text = "This one matters a lot. This is how you'll make sense of your data later. Running a regular purchase campaign with no specific theme? Put something like all_store_purchase. Running an April-specific push? Put april_purchase. Just remember, no spaces, always use an underscore to separate words."
+    else:
+        help_text = FIELD_HELP.get(fid, None)
 
     display_label = f"{label} :red[*]" if required else label
 
@@ -543,6 +558,7 @@ for field in schema["fields"]:
             options=[""] + options,
             format_func=lambda x, lbl=label: f"Select {lbl}…" if x == "" else x,
             key=f"utms_field_{fid}",
+            help=help_text,
         )
 
         # ── Google conditional: Campaign Type selector ──
@@ -552,6 +568,7 @@ for field in schema["fields"]:
                 options=[""] + GOOGLE_CAMPAIGN_TYPES,
                 format_func=lambda x: "Select Campaign Type…" if x == "" else x,
                 key="utms_field_google_campaign_type",
+                help="Select the type of Google campaign you're running.",
             )
 
     elif field["type"] == "creatable-select":
@@ -559,6 +576,7 @@ for field in schema["fields"]:
             display_label,
             placeholder=field.get("placeholder", "Type or select a client…"),
             key=f"utms_field_{fid}",
+            help=help_text,
         )
         if existing_clients:
             with st.expander("📋 Existing clients", expanded=False):
@@ -575,6 +593,7 @@ for field in schema["fields"]:
             display_label,
             placeholder=field.get("placeholder", ""),
             key=f"utms_field_{fid}",
+            help=help_text,
         )
 
 # ── Safety: clear google_campaign_type when platform is not google ──
